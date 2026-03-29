@@ -15,13 +15,21 @@ export default function DashboardLayout({
     const router = useRouter();
 
     useEffect(() => {
+        // Only redirect if rehydration is complete and user is definitely null
         if (!user) {
             router.push("/login");
         }
     }, [user, router]);
 
     if (!user) {
-        return null; // Or a loading spinner
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+                    <p className="text-sm font-medium text-gray-500">Verifying session...</p>
+                </div>
+            </div>
+        );
     }
 
     return (

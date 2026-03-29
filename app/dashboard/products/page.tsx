@@ -1,14 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useCreateProductMutation, useGetAllProductsQuery, useUpdateProductMutation } from "@/redux/features/product/productApi";
+import { 
+    useCreateProductMutation, 
+    useGetAllProductsQuery, 
+    useUpdateProductMutation 
+} from "@/redux/features/product/productApi";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Package, Edit2, AlertCircle } from "lucide-react";
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableHeader, 
+    TableRow 
+} from "@/components/ui/table";
+import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ProductsPage() {
     const [name, setName] = useState("");
@@ -17,6 +29,7 @@ export default function ProductsPage() {
     const [stock, setStock] = useState("");
     const [minStockThreshold, setMinStockThreshold] = useState("");
     const [editingProduct, setEditingProduct] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const { data: products, isLoading: productsLoading } = useGetAllProductsQuery(undefined);
     const { data: categories, isLoading: categoriesLoading } = useGetAllCategoriesQuery(undefined);
@@ -36,11 +49,8 @@ export default function ProductsPage() {
         try {
             if (editingProduct) {
                 await updateProduct({ id: editingProduct._id, ...payload }).unwrap();
-                alert("Product updated successfully!");
-                setEditingProduct(null);
             } else {
                 await createProduct(payload).unwrap();
-                alert("Product created successfully!");
             }
             resetForm();
         } catch (err) {
@@ -65,68 +75,93 @@ export default function ProductsPage() {
         setPrice(product.price.toString());
         setStock(product.stock.toString());
         setMinStockThreshold(product.minStockThreshold.toString());
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    const filteredProducts = products?.data?.filter((p: any) => 
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     if (productsLoading || categoriesLoading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex h-[calc(100vh-8rem)] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+        );
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold flex items-center">
-                    <Package className="mr-3 h-8 w-8 text-primary" />
-                    Product Management
-                </h1>
+        <div className="space-y-8 animate-in fade-in duration-500 pb-12">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Products</h1>
+                    <p className="text-gray-500 mt-1">Manage your inventory items and stock levels.</p>
+                </div>
+                <div className="relative w-full md:w-80">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input 
+                        placeholder="Search products or categories..." 
+                        className="pl-10 h-11 bg-white border-gray-200 rounded-xl shadow-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Form Card */}
-                <Card className="lg:col-span-1">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-bold flex items-center">
-                            {editingProduct ? <Edit2 className="mr-2 h-5 w-5" /> : <Plus className="mr-2 h-5 w-5" />}
-                            {editingProduct ? "Update Product" : "New Product"}
+                <Card className="lg:col-span-1 border-0 shadow-sm h-fit sticky top-8">
+                    <CardHeader className="pb-6 border-b border-gray-50">
+                        <CardTitle className="text-xl font-bold flex items-center text-gray-900">
+                            {editingProduct ? <Edit2 className="mr-3 h-5 w-5 text-amber-500" /> : <Plus className="mr-3 h-5 w-5 text-blue-600" />}
+                            {editingProduct ? "Edit Product" : "New Product"}
                         </CardTitle>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
-                        <CardContent className="space-y-4">
+                        <CardContent className="pt-6 space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Product Name</Label>
-                                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Product Name</Label>
+                                <Input id="name" placeholder="e.g. iPhone 15 Pro" className="h-11 border-gray-200 rounded-xl" value={name} onChange={(e) => setName(e.target.value)} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="category">Category</Label>
-                                <select id="category" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+                                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">Category</Label>
+                                <select
+                                    id="category"
+                                    className="flex h-11 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    required
+                                >
                                     <option value="">Select Category</option>
                                     {categories?.data?.map((category: any) => (
-                                        <option key={category._id} value={category._id}>
-                                            {category.name}
-                                        </option>
+                                        <option key={category._id} value={category._id}>{category.name}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="price">Price ($)</Label>
-                                    <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
+                                    <Label htmlFor="price" className="text-sm font-semibold text-gray-700">Price ($)</Label>
+                                    <Input id="price" type="number" step="0.01" placeholder="0.00" className="h-11 border-gray-200 rounded-xl" value={price} onChange={(e) => setPrice(e.target.value)} required />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="stock">Initial Stock</Label>
-                                    <Input id="stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
+                                    <Label htmlFor="stock" className="text-sm font-semibold text-gray-700">Current Stock</Label>
+                                    <Input id="stock" type="number" placeholder="0" className="h-11 border-gray-200 rounded-xl" value={stock} onChange={(e) => setStock(e.target.value)} required />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="threshold">Min Stock Threshold</Label>
-                                <Input id="threshold" type="number" value={minStockThreshold} onChange={(e) => setMinStockThreshold(e.target.value)} required />
+                                <Label htmlFor="threshold" className="text-sm font-semibold text-gray-700">Min Stock Threshold</Label>
+                                <Input id="threshold" type="number" placeholder="5" className="h-11 border-gray-200 rounded-xl" value={minStockThreshold} onChange={(e) => setMinStockThreshold(e.target.value)} required />
                             </div>
-                            <div className="flex space-x-2">
-                                <Button type="submit" className="flex-1" disabled={isCreating || isUpdating}>
-                                    {isCreating || isUpdating ? "Saving..." : editingProduct ? "Update" : "Create"}
+                            <div className="flex gap-3 pt-2">
+                                <Button type="submit" className={cn("flex-1 h-11 font-semibold rounded-xl", editingProduct ? "bg-amber-500 hover:bg-amber-600" : "bg-blue-600 hover:bg-blue-700")} disabled={isCreating || isUpdating}>
+                                    {isCreating || isUpdating ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : editingProduct ? "Update Product" : "Add Product"}
                                 </Button>
                                 {editingProduct && (
-                                    <Button type="button" variant="outline" onClick={resetForm}>
-                                        Cancel
+                                    <Button type="button" variant="outline" className="h-11 rounded-xl border-gray-200" onClick={resetForm}>
+                                        <X className="h-4 w-4" />
                                     </Button>
                                 )}
                             </div>
@@ -135,52 +170,88 @@ export default function ProductsPage() {
                 </Card>
 
                 {/* Table Card */}
-                <Card className="lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle className="text-xl font-bold">Inventory List</CardTitle>
+                <Card className="lg:col-span-2 border-0 shadow-sm overflow-hidden">
+                    <CardHeader className="pb-6 border-b border-gray-50 flex flex-row items-center justify-between">
+                        <CardTitle className="text-xl font-bold text-gray-900">Inventory</CardTitle>
+                        <div className="flex items-center text-xs font-medium text-gray-400">
+                            <Filter className="h-3 w-3 mr-1" />
+                            {filteredProducts?.length || 0} Products
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Product</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Price</TableHead>
-                                    <TableHead>Stock</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {products?.data?.map((product: any) => (
-                                    <TableRow key={product._id}>
-                                        <TableCell className="font-medium">{product.name}</TableCell>
-                                        <TableCell>{product.category.name}</TableCell>
-                                        <TableCell>${product.price}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center">
-                                                {product.stock}
-                                                {product.stock <= product.minStockThreshold && <AlertCircle className="ml-2 h-4 w-4 text-red-500" />}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${product.stock > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>{product.stock > 0 ? "Active" : "Out of Stock"}</span>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Button variant="ghost" size="sm" onClick={() => handleEdit(product)}>
-                                                <Edit2 className="h-4 w-4" />
-                                            </Button>
-                                        </TableCell>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader className="bg-gray-50/50">
+                                    <TableRow className="hover:bg-transparent border-gray-100">
+                                        <TableHead className="font-semibold text-gray-600 px-6 h-12">Product Details</TableHead>
+                                        <TableHead className="font-semibold text-gray-600 h-12">Price</TableHead>
+                                        <TableHead className="font-semibold text-gray-600 h-12 text-center">Stock</TableHead>
+                                        <TableHead className="font-semibold text-gray-600 h-12 text-center">Status</TableHead>
+                                        <TableHead className="font-semibold text-gray-600 h-12 text-right px-6">Action</TableHead>
                                     </TableRow>
-                                )) || (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-gray-500 py-8">
-                                            No products found. Add some products to the inventory.
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredProducts?.length > 0 ? (
+                                        filteredProducts.map((product: any) => (
+                                            <TableRow key={product._id} className="border-gray-50 hover:bg-gray-50/30 transition-colors">
+                                                <TableCell className="px-6 py-4">
+                                                    <div>
+                                                        <p className="font-bold text-gray-900">{product.name}</p>
+                                                        <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{product.category.name}</p>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="font-semibold text-gray-700">
+                                                    ${product.price.toFixed(2)}
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <div className="flex flex-col items-center">
+                                                        <span className={cn(
+                                                            "font-bold text-sm",
+                                                            product.stock <= product.minStockThreshold ? "text-rose-600" : "text-gray-700"
+                                                        )}>
+                                                            {product.stock}
+                                                        </span>
+                                                        {product.stock <= product.minStockThreshold && (
+                                                            <div className="flex items-center text-[10px] text-rose-500 font-bold uppercase mt-0.5">
+                                                                <AlertCircle className="h-2 w-2 mr-1" />
+                                                                Low
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <span className={cn(
+                                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide",
+                                                        product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                                                    )}>
+                                                        {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-right px-6">
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="h-8 w-8 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50" 
+                                                        onClick={() => handleEdit(product)}
+                                                    >
+                                                        <Edit2 className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="h-64 text-center">
+                                                <div className="flex flex-col items-center justify-center text-gray-400">
+                                                    <Package className="h-12 w-12 mb-3 text-gray-200" />
+                                                    <p className="text-sm font-medium">No products found</p>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

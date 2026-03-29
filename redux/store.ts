@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 import authReducer from "./features/auth/authSlice";
 import { baseApi } from "./api/baseApi";
@@ -20,21 +20,23 @@ const createNoopStorage = () => {
 
 const storage = typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage();
 
-const persistConfigure = {
-    key: "auth",
+const rootReducer = combineReducers({
+    [baseApi.reducerPath]: baseApi.reducer,
+    auth: authReducer,
+});
+
+const persistConfig = {
+    key: "root",
     storage,
-    whitelist: ["user", "token"],
+    whitelist: ["auth"],
 };
 
-const persistAuthReducer = persistReducer(persistConfigure, authReducer);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-const store = configureStore({
-    reducer: {
-        [baseApi.reducerPath]: baseApi.reducer,
-        auth: persistAuthReducer,
-    },
-    middleware: (getDefaultMiddlewares) =>
-        getDefaultMiddlewares({
+export const store = configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
@@ -44,6 +46,6 @@ const store = configureStore({
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-export default store;
-
 export const persistor = persistStore(store);
+
+export default store;
