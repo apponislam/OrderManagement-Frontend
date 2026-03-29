@@ -2,9 +2,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
 
 export const roles = {
-    GUEST: "GUEST" as const,
-    HOST: "HOST" as const,
-    ADMIN: "ADMIN" as const,
+    ADMIN: "admin" as const,
+    MANAGER: "manager" as const,
 };
 
 export type Role = (typeof roles)[keyof typeof roles];

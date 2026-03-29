@@ -1,13 +1,25 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/redux/hooks";
+import { currentUser } from "@/redux/features/auth/authSlice";
 
 export default function Home() {
+    const user = useAppSelector(currentUser);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (user) {
+            router.push("/dashboard");
+        } else {
+            router.push("/login");
+        }
+    }, [user, router]);
+
     return (
-        <Card className="max-w-sm">
-            <CardHeader>
-                <CardTitle>Project Overview</CardTitle>
-                <CardDescription>Track progress and recent activity for your Next.js app.</CardDescription>
-            </CardHeader>
-            <CardContent>Your design system is ready. Start building your next component.</CardContent>
-        </Card>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50">
+            <p className="text-gray-500 animate-pulse">Redirecting...</p>
+        </div>
     );
 }
