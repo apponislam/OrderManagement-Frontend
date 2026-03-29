@@ -3,14 +3,7 @@
 import { useGetRestockQueueQuery } from "@/redux/features/dashboard/dashboardApi";
 import { useUpdateProductMutation } from "@/redux/features/product/productApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertCircle, ArrowUpCircle, RefreshCcw, Loader2, PackageSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,9 +17,9 @@ export default function RestockQueuePage() {
         if (restockAmount === null || isNaN(Number(restockAmount))) return;
 
         try {
-            await updateProduct({ 
-                id: product._id, 
-                stock: product.stock + Number(restockAmount) 
+            await updateProduct({
+                id: product._id,
+                stock: product.stock + Number(restockAmount),
             }).unwrap();
         } catch (err) {
             console.error("Restock failed:", err);
@@ -50,14 +43,7 @@ export default function RestockQueuePage() {
             label = "Low Priority";
         }
 
-        return (
-            <span className={cn(
-                "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                style
-            )}>
-                {label}
-            </span>
-        );
+        return <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border", style)}>{label}</span>;
     };
 
     if (queueLoading) {
@@ -103,30 +89,15 @@ export default function RestockQueuePage() {
                                         <TableRow key={product._id} className="border-gray-50 hover:bg-gray-50/30 transition-colors">
                                             <TableCell className="px-6 py-5">
                                                 <p className="font-bold text-gray-900">{product.name}</p>
-                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{product.category?.name || 'Uncategorized'}</p>
+                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{product.category?.name || "Uncategorized"}</p>
                                             </TableCell>
                                             <TableCell className="text-center py-5">
-                                                <span className={cn(
-                                                    "text-lg font-black",
-                                                    product.stock === 0 ? "text-rose-600" : "text-amber-600"
-                                                )}>
-                                                    {product.stock}
-                                                </span>
+                                                <span className={cn("text-lg font-black", product.stock === 0 ? "text-rose-600" : "text-amber-600")}>{product.stock}</span>
                                             </TableCell>
-                                            <TableCell className="text-center py-5 font-bold text-gray-400">
-                                                {product.minStockThreshold}
-                                            </TableCell>
-                                            <TableCell className="text-center py-5">
-                                                {getPriorityBadge(product.stock, product.minStockThreshold)}
-                                            </TableCell>
+                                            <TableCell className="text-center py-5 font-bold text-gray-400">{product.minStockThreshold}</TableCell>
+                                            <TableCell className="text-center py-5">{getPriorityBadge(product.stock, product.minStockThreshold)}</TableCell>
                                             <TableCell className="text-right px-6 py-5">
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="sm" 
-                                                    className="h-10 px-4 rounded-xl border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all font-bold shadow-sm"
-                                                    onClick={() => handleRestock(product)}
-                                                    disabled={isRestocking}
-                                                >
+                                                <Button variant="outline" size="sm" className="h-10 px-4 rounded-xl border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all font-bold shadow-sm" onClick={() => handleRestock(product)} disabled={isRestocking}>
                                                     <RefreshCcw className={cn("mr-2 h-4 w-4", isRestocking && "animate-spin")} />
                                                     Restock
                                                 </Button>
@@ -141,9 +112,7 @@ export default function RestockQueuePage() {
                                                     <PackageSearch className="h-12 w-12 text-emerald-500" />
                                                 </div>
                                                 <p className="text-lg font-bold text-gray-900">Inventory is Healthy</p>
-                                                <p className="text-sm text-gray-400 max-w-[250px] mx-auto mt-1">
-                                                    No products are currently below their minimum stock threshold.
-                                                </p>
+                                                <p className="text-sm text-gray-400 max-w-62.5 mx-auto mt-1">No products are currently below their minimum stock threshold.</p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
