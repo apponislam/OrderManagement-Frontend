@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function ProductsPage() {
     const [name, setName] = useState("");
@@ -44,7 +45,7 @@ export default function ProductsPage() {
             resetForm();
         } catch (err) {
             console.error("Failed to save product:", err);
-            alert("Failed to save product.");
+            toast.error("Failed to save product.");
         }
     };
 

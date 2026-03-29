@@ -14,6 +14,7 @@ import { LogIn, Loader2 } from "lucide-react";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -38,7 +39,7 @@ export default function LoginPage() {
             router.push("/dashboard");
         } catch (err) {
             console.error("Login failed:", err);
-            alert("Login failed. Please check your credentials.");
+            toast.error("Login failed. Please check your credentials.");
         }
     };
 

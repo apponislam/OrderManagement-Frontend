@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ShoppingCart, Plus, Trash2, CheckCircle2, XCircle, Truck, PackageCheck, Search, User, Package, ArrowRight, Loader2, Calendar, Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function OrdersPage() {
     const [customerName, setCustomerName] = useState("");
@@ -35,17 +36,17 @@ export default function OrdersPage() {
         if (!product) return;
 
         if (product.stock <= 0) {
-            alert("This product is currently out of stock.");
+            toast.error("This product is currently out of stock.");
             return;
         }
 
         if (orderItems.some((item) => item.productId === selectedProductId)) {
-            alert("This product is already added to the order.");
+            toast.error("This product is already added to the order.");
             return;
         }
 
         if (selectedQuantity > product.stock) {
-            alert(`Only ${product.stock} items available in stock.`);
+            toast.error(`Only ${product.stock} items available in stock.`);
             return;
         }
 
@@ -69,7 +70,7 @@ export default function OrdersPage() {
     const handleSubmitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         if (orderItems.length === 0) {
-            alert("Please add at least one item to the order.");
+            toast.error("Please add at least one item to the order.");
             return;
         }
 
@@ -82,7 +83,7 @@ export default function OrdersPage() {
             setOrderItems([]);
         } catch (err: any) {
             console.error("Failed to create order:", err);
-            alert(err?.data?.message || "Failed to create order.");
+            toast.error(err?.data?.message || "Failed to create order.");
         }
     };
 

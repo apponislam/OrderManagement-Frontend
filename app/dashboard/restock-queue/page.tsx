@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { AlertCircle, ArrowUpCircle, RefreshCcw, Loader2, PackageSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function RestockQueuePage() {
     const { data: queue, isLoading: queueLoading } = useGetRestockQueueQuery(undefined);
@@ -23,7 +24,7 @@ export default function RestockQueuePage() {
             }).unwrap();
         } catch (err) {
             console.error("Restock failed:", err);
-            alert("Restock failed. Please try again.");
+            toast.error("Restock failed. Please try again.");
         }
     };
 
@@ -89,9 +90,7 @@ export default function RestockQueuePage() {
                                         <TableRow key={product._id} className="border-gray-50 hover:bg-gray-50/30 transition-colors">
                                             <TableCell className="px-6 py-5">
                                                 <p className="font-bold text-gray-900">{product.name}</p>
-                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">
-                                                    {typeof product.category === "object" ? product.category?.name : "Uncategorized"}
-                                                </p>
+                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{typeof product.category === "object" ? product.category?.name : "Uncategorized"}</p>
                                             </TableCell>
                                             <TableCell className="text-center py-5">
                                                 <span className={cn("text-lg font-black", product.stock === 0 ? "text-rose-600" : "text-amber-600")}>{product.stock}</span>

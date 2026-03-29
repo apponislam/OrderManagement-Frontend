@@ -6,15 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Tags, Loader2, Search, Inbox } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CategoriesPage() {
     const [name, setName] = useState("");
@@ -30,13 +24,11 @@ export default function CategoriesPage() {
             setName("");
         } catch (err) {
             console.error("Failed to create category:", err);
-            alert("Failed to create category.");
+            toast.error("Failed to create category.");
         }
     };
 
-    const filteredCategories = categories?.data?.filter((cat: any) => 
-        cat.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredCategories = categories?.data?.filter((cat: any) => cat.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     if (isLoading) {
         return (
@@ -55,12 +47,7 @@ export default function CategoriesPage() {
                 </div>
                 <div className="relative w-full md:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                        placeholder="Search categories..." 
-                        className="pl-10 h-11 bg-white border-gray-200 rounded-xl"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <Input placeholder="Search categories..." className="pl-10 h-11 bg-white border-gray-200 rounded-xl" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
             </div>
 
@@ -76,15 +63,10 @@ export default function CategoriesPage() {
                     <form onSubmit={handleCreateCategory}>
                         <CardContent className="pt-6 space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Category Name</Label>
-                                <Input
-                                    id="name"
-                                    placeholder="e.g. Electronics"
-                                    className="h-11 border-gray-200 rounded-xl focus:border-blue-500 transition-all"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                />
+                                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                                    Category Name
+                                </Label>
+                                <Input id="name" placeholder="e.g. Electronics" className="h-11 border-gray-200 rounded-xl focus:border-blue-500 transition-all" value={name} onChange={(e) => setName(e.target.value)} required />
                             </div>
                             <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700 transition-all font-semibold rounded-xl" disabled={isCreating}>
                                 {isCreating ? (
@@ -92,7 +74,9 @@ export default function CategoriesPage() {
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Creating...
                                     </>
-                                ) : "Create Category"}
+                                ) : (
+                                    "Create Category"
+                                )}
                             </Button>
                         </CardContent>
                     </form>
@@ -119,9 +103,7 @@ export default function CategoriesPage() {
                                             <TableRow key={category._id} className="border-gray-50 hover:bg-gray-50/50 transition-colors">
                                                 <TableCell className="px-6 font-medium text-gray-400 text-xs">{index + 1}</TableCell>
                                                 <TableCell className="font-semibold text-gray-800">{category.name}</TableCell>
-                                                <TableCell className="text-sm text-gray-500 font-medium">
-                                                    {new Date(category.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
-                                                </TableCell>
+                                                <TableCell className="text-sm text-gray-500 font-medium">{new Date(category.createdAt).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}</TableCell>
                                             </TableRow>
                                         ))
                                     ) : (

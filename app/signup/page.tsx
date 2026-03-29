@@ -12,6 +12,7 @@ import { UserPlus, Loader2 } from "lucide-react";
 import { useAppSelector } from "@/redux/hooks";
 import { currentUser } from "@/redux/features/auth/authSlice";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 export default function SignupPage() {
     const [name, setName] = useState("");
@@ -21,23 +22,22 @@ export default function SignupPage() {
     const [signup, { isLoading }] = useSignupMutation();
     const router = useRouter();
     const user = useAppSelector(currentUser);
-    const isRehydrated = useAppSelector((state: any) => state.auth._persist?.rehydrated);
 
     useEffect(() => {
-        if (isRehydrated && user) {
+        if (user) {
             router.push("/dashboard");
         }
-    }, [user, router, isRehydrated]);
+    }, [user, router]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             await signup({ name, email, password, role }).unwrap();
-            alert("Signup successful! Please login.");
+            toast.success("Signup successful! Please login.");
             router.push("/login");
         } catch (err) {
             console.error("Signup failed:", err);
-            alert("Signup failed. Please try again.");
+            toast.error("Signup failed. Please try again.");
         }
     };
 
