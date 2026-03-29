@@ -89,7 +89,9 @@ export default function RestockQueuePage() {
                                         <TableRow key={product._id} className="border-gray-50 hover:bg-gray-50/30 transition-colors">
                                             <TableCell className="px-6 py-5">
                                                 <p className="font-bold text-gray-900">{product.name}</p>
-                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{product.category?.name || "Uncategorized"}</p>
+                                                <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">
+                                                    {typeof product.category === "object" ? product.category?.name : "Uncategorized"}
+                                                </p>
                                             </TableCell>
                                             <TableCell className="text-center py-5">
                                                 <span className={cn("text-lg font-black", product.stock === 0 ? "text-rose-600" : "text-amber-600")}>{product.stock}</span>

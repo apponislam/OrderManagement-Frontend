@@ -6,22 +6,21 @@ import { currentUser } from "@/redux/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const user = useAppSelector(currentUser);
     const router = useRouter();
+    // Check if the store is hydrated (persisted data loaded)
+    const isRehydrated = useAppSelector((state: any) => state.auth._persist?.rehydrated);
 
     useEffect(() => {
-        // Only redirect if rehydration is complete and user is definitely null
-        if (!user) {
+        // Wait until the store is rehydrated before checking user status
+        if (isRehydrated && !user) {
             router.push("/login");
         }
-    }, [user, router]);
+    }, [user, router, isRehydrated]);
 
-    if (!user) {
+    // Show loading spinner while rehydrating or checking user
+    if (!isRehydrated || !user) {
         return (
             <div className="flex h-screen w-full items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center gap-2">
@@ -35,9 +34,7 @@ export default function DashboardLayout({
     return (
         <div className="flex min-h-screen bg-gray-50">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto h-screen p-8">
-                {children}
-            </main>
+            <main className="flex-1 overflow-y-auto h-screen p-8">{children}</main>
         </div>
     );
 }

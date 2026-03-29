@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../store";
+import { jwtDecode } from "jwt-decode";
 
 export const roles = {
     ADMIN: "admin" as const,
@@ -13,7 +14,8 @@ export type TUser = {
     name: string;
     email: string;
     role: Role;
-    isActive: boolean;
+    iat?: number;
+    exp?: number;
 };
 
 type TAuthState = {
@@ -30,9 +32,15 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setUser: (state, action: PayloadAction<{ user: TUser; token: string }>) => {
-            state.user = action.payload.user;
-            state.token = action.payload.token;
+        setUser: (state, action: PayloadAction<{ token: string }>) => {
+            const { token } = action.payload;
+            state.token = token;
+            try {
+                state.user = jwtDecode(token) as TUser;
+            } catch (error) {
+                console.error("Token decoding failed:", error);
+                state.user = null;
+            }
         },
         logOut: (state) => {
             state.user = null;

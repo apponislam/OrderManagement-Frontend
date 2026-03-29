@@ -1,24 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { 
-    useCreateProductMutation, 
-    useGetAllProductsQuery, 
-    useUpdateProductMutation 
-} from "@/redux/features/product/productApi";
+import { useCreateProductMutation, useGetAllProductsQuery, useUpdateProductMutation } from "@/redux/features/product/productApi";
 import { useGetAllCategoriesQuery } from "@/redux/features/category/categoryApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,17 +60,19 @@ export default function ProductsPage() {
     const handleEdit = (product: any) => {
         setEditingProduct(product);
         setName(product.name);
-        setCategoryId(product.category._id);
+        // Handle both populated and unpopulated category
+        const catId = typeof product.category === "object" ? product.category?._id : product.category;
+        setCategoryId(catId || "");
         setPrice(product.price.toString());
         setStock(product.stock.toString());
         setMinStockThreshold(product.minStockThreshold.toString());
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const filteredProducts = products?.data?.filter((p: any) => 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = products?.data?.filter((p: any) => {
+        const categoryName = typeof p.category === "object" ? p.category?.name : "";
+        return p.name.toLowerCase().includes(searchTerm.toLowerCase()) || (categoryName?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+    });
 
     if (productsLoading || categoriesLoading) {
         return (
@@ -100,12 +91,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="relative w-full md:w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                        placeholder="Search products or categories..." 
-                        className="pl-10 h-11 bg-white border-gray-200 rounded-xl shadow-sm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <Input placeholder="Search products or categories..." className="pl-10 h-11 bg-white border-gray-200 rounded-xl shadow-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
             </div>
 
@@ -121,43 +107,47 @@ export default function ProductsPage() {
                     <form onSubmit={handleSubmit}>
                         <CardContent className="pt-6 space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Product Name</Label>
+                                <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                                    Product Name
+                                </Label>
                                 <Input id="name" placeholder="e.g. iPhone 15 Pro" className="h-11 border-gray-200 rounded-xl" value={name} onChange={(e) => setName(e.target.value)} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">Category</Label>
-                                <select
-                                    id="category"
-                                    className="flex h-11 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    value={categoryId}
-                                    onChange={(e) => setCategoryId(e.target.value)}
-                                    required
-                                >
+                                <Label htmlFor="category" className="text-sm font-semibold text-gray-700">
+                                    Category
+                                </Label>
+                                <select id="category" className="flex h-11 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
                                     <option value="">Select Category</option>
                                     {categories?.data?.map((category: any) => (
-                                        <option key={category._id} value={category._id}>{category.name}</option>
+                                        <option key={category._id} value={category._id}>
+                                            {category.name}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="price" className="text-sm font-semibold text-gray-700">Price ($)</Label>
+                                    <Label htmlFor="price" className="text-sm font-semibold text-gray-700">
+                                        Price ($)
+                                    </Label>
                                     <Input id="price" type="number" step="0.01" placeholder="0.00" className="h-11 border-gray-200 rounded-xl" value={price} onChange={(e) => setPrice(e.target.value)} required />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="stock" className="text-sm font-semibold text-gray-700">Current Stock</Label>
+                                    <Label htmlFor="stock" className="text-sm font-semibold text-gray-700">
+                                        Current Stock
+                                    </Label>
                                     <Input id="stock" type="number" placeholder="0" className="h-11 border-gray-200 rounded-xl" value={stock} onChange={(e) => setStock(e.target.value)} required />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="threshold" className="text-sm font-semibold text-gray-700">Min Stock Threshold</Label>
+                                <Label htmlFor="threshold" className="text-sm font-semibold text-gray-700">
+                                    Min Stock Threshold
+                                </Label>
                                 <Input id="threshold" type="number" placeholder="5" className="h-11 border-gray-200 rounded-xl" value={minStockThreshold} onChange={(e) => setMinStockThreshold(e.target.value)} required />
                             </div>
                             <div className="flex gap-3 pt-2">
                                 <Button type="submit" className={cn("flex-1 h-11 font-semibold rounded-xl", editingProduct ? "bg-amber-500 hover:bg-amber-600" : "bg-blue-600 hover:bg-blue-700")} disabled={isCreating || isUpdating}>
-                                    {isCreating || isUpdating ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : editingProduct ? "Update Product" : "Add Product"}
+                                    {isCreating || isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : editingProduct ? "Update Product" : "Add Product"}
                                 </Button>
                                 {editingProduct && (
                                     <Button type="button" variant="outline" className="h-11 rounded-xl border-gray-200" onClick={resetForm}>
@@ -197,20 +187,13 @@ export default function ProductsPage() {
                                                 <TableCell className="px-6 py-4">
                                                     <div>
                                                         <p className="font-bold text-gray-900">{product.name}</p>
-                                                        <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{product.category.name}</p>
+                                                        <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 mt-0.5">{typeof product.category === "object" ? product.category?.name : "Uncategorized"}</p>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="font-semibold text-gray-700">
-                                                    ${product.price.toFixed(2)}
-                                                </TableCell>
+                                                <TableCell className="font-semibold text-gray-700">${product.price.toFixed(2)}</TableCell>
                                                 <TableCell className="text-center">
                                                     <div className="flex flex-col items-center">
-                                                        <span className={cn(
-                                                            "font-bold text-sm",
-                                                            product.stock <= product.minStockThreshold ? "text-rose-600" : "text-gray-700"
-                                                        )}>
-                                                            {product.stock}
-                                                        </span>
+                                                        <span className={cn("font-bold text-sm", product.stock <= product.minStockThreshold ? "text-rose-600" : "text-gray-700")}>{product.stock}</span>
                                                         {product.stock <= product.minStockThreshold && (
                                                             <div className="flex items-center text-[10px] text-rose-500 font-bold uppercase mt-0.5">
                                                                 <AlertCircle className="h-2 w-2 mr-1" />
@@ -220,20 +203,10 @@ export default function ProductsPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <span className={cn(
-                                                        "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide",
-                                                        product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
-                                                    )}>
-                                                        {product.stock > 0 ? "In Stock" : "Out of Stock"}
-                                                    </span>
+                                                    <span className={cn("px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide", product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700")}>{product.stock > 0 ? "In Stock" : "Out of Stock"}</span>
                                                 </TableCell>
                                                 <TableCell className="text-right px-6">
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="icon" 
-                                                        className="h-8 w-8 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50" 
-                                                        onClick={() => handleEdit(product)}
-                                                    >
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(product)}>
                                                         <Edit2 className="h-4 w-4" />
                                                     </Button>
                                                 </TableCell>

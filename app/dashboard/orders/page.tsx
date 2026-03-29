@@ -283,7 +283,7 @@ export default function OrdersPage() {
                                                     <div className="flex flex-wrap gap-1.5 max-w-50">
                                                         {order.items.map((item: any, i: number) => (
                                                             <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold">
-                                                                {item.productId?.name || "Product"} ×{item.quantity}
+                                                                {(typeof item.productId === "object" ? item.productId?.name : "Product") || "Product"} ×{item.quantity}
                                                             </span>
                                                         ))}
                                                     </div>

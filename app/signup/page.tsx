@@ -21,12 +21,13 @@ export default function SignupPage() {
     const [signup, { isLoading }] = useSignupMutation();
     const router = useRouter();
     const user = useAppSelector(currentUser);
+    const isRehydrated = useAppSelector((state: any) => state.auth._persist?.rehydrated);
 
     useEffect(() => {
-        if (user) {
+        if (isRehydrated && user) {
             router.push("/dashboard");
         }
-    }, [user, router]);
+    }, [user, router, isRehydrated]);
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();

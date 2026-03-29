@@ -22,18 +22,19 @@ export default function LoginPage() {
     const dispatch = useAppDispatch();
     const router = useRouter();
     const user = useAppSelector(currentUser);
+    const isRehydrated = useAppSelector((state: any) => state.auth._persist?.rehydrated);
 
     useEffect(() => {
-        if (user) {
+        if (isRehydrated && user) {
             router.push("/dashboard");
         }
-    }, [user, router]);
+    }, [user, router, isRehydrated]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const res = await login({ email, password }).unwrap();
-            dispatch(setUser({ user: res.data.user, token: res.data.accessToken }));
+            dispatch(setUser({ token: res.data.accessToken }));
             router.push("/dashboard");
         } catch (err) {
             console.error("Login failed:", err);
