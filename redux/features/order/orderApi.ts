@@ -4,7 +4,7 @@ const orderApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         createOrder: builder.mutation({
             query: (data) => ({
-                url: "/order",
+                url: "order",
                 method: "POST",
                 body: data,
             }),
@@ -12,7 +12,7 @@ const orderApi = baseApi.injectEndpoints({
         }),
         getAllOrders: builder.query({
             query: (params) => ({
-                url: "/order",
+                url: "order",
                 method: "GET",
                 params,
             }),
@@ -20,7 +20,7 @@ const orderApi = baseApi.injectEndpoints({
         }),
         updateOrderStatus: builder.mutation({
             query: ({ id, status }) => ({
-                url: `/order/${id}/status`,
+                url: `order/${id}/status`,
                 method: "PATCH",
                 body: { status },
             }),
@@ -28,7 +28,7 @@ const orderApi = baseApi.injectEndpoints({
         }),
         cancelOrder: builder.mutation({
             query: (id) => ({
-                url: `/order/${id}/cancel`,
+                url: `order/${id}/cancel`,
                 method: "PATCH",
             }),
             invalidatesTags: ["Order", "Product"],

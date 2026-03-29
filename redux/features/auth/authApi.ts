@@ -1,13 +1,4 @@
 import { baseApi } from "../../api/baseApi";
-import { TUser } from "./authSlice";
-
-type RefreshTokenResponse = {
-    data: {
-        refreshToken: string;
-        accessToken: string;
-        user: TUser;
-    };
-};
 
 type SetUserPasswordResponse = {
     success: boolean;
@@ -35,13 +26,6 @@ const authApi = baseApi.injectEndpoints({
                 body: userInfo,
             }),
         }),
-        refreshToken: builder.mutation<RefreshTokenResponse, void>({
-            query: () => ({
-                url: "/auth/refresh-token",
-                method: "POST",
-                credentials: "include",
-            }),
-        }),
         logout: builder.mutation<void, void>({
             query: () => ({
                 url: "/auth/logout",
@@ -52,14 +36,14 @@ const authApi = baseApi.injectEndpoints({
         // === Forgot password endpoints ===
         requestPasswordResetOtp: builder.mutation<void, { email: string }>({
             query: (body) => ({
-                url: "/auth/forgot-password",
+                url: "auth/forgot-password",
                 method: "POST",
                 body,
             }),
         }),
         verifyOtp: builder.mutation<{ success: boolean; message: string; data: { resetToken: string } }, { email: string; otp: string }>({
             query: (body) => ({
-                url: "/auth/verify-otp",
+                url: "auth/verify-otp",
                 method: "POST",
                 body,
             }),
@@ -67,21 +51,21 @@ const authApi = baseApi.injectEndpoints({
 
         resendResetOtp: builder.mutation<void, { email: string }>({
             query: (body) => ({
-                url: "/auth/resend-reset-otp",
+                url: "auth/resend-reset-otp",
                 method: "POST",
                 body,
             }),
         }),
         resetPasswordWithToken: builder.mutation<void, { resetToken: string; newPassword: string }>({
             query: (body) => ({
-                url: "/auth/reset-password",
+                url: "auth/reset-password",
                 method: "POST",
                 body,
             }),
         }),
         verifyEmail: builder.query({
             query: ({ userId, token }: { userId: string; token: string }) => ({
-                url: `/auth/verify-email`,
+                url: `auth/verify-email`,
                 method: "GET",
                 params: { token, id: userId },
             }),
@@ -89,7 +73,7 @@ const authApi = baseApi.injectEndpoints({
 
         setUserPasswordByAdmin: builder.mutation<SetUserPasswordResponse, { userId: string; newPassword: string }>({
             query: (body) => ({
-                url: "/auth/set-user-password",
+                url: "auth/set-user-password",
                 method: "POST",
                 body,
                 credentials: "include",
@@ -98,4 +82,4 @@ const authApi = baseApi.injectEndpoints({
     }),
 });
 
-export const { useLoginMutation, useSignupMutation, useRefreshTokenMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation, useVerifyEmailQuery, useSetUserPasswordByAdminMutation } = authApi;
+export const { useLoginMutation, useSignupMutation, useLogoutMutation, useRequestPasswordResetOtpMutation, useVerifyOtpMutation, useResendResetOtpMutation, useResetPasswordWithTokenMutation, useVerifyEmailQuery, useSetUserPasswordByAdminMutation } = authApi;

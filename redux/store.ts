@@ -1,8 +1,24 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 import authReducer from "./features/auth/authSlice";
-import storage from "redux-persist/lib/storage";
 import { baseApi } from "./api/baseApi";
+import createWebStorage from "redux-persist/lib/storage/createWebStorage";
+
+const createNoopStorage = () => {
+    return {
+        getItem(_key: string) {
+            return Promise.resolve(null);
+        },
+        setItem(_key: string, value: any) {
+            return Promise.resolve(value);
+        },
+        removeItem(_key: string) {
+            return Promise.resolve();
+        },
+    };
+};
+
+const storage = typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage();
 
 const persistConfigure = {
     key: "auth",

@@ -4,21 +4,21 @@ const dashboardApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getDashboardStats: builder.query({
             query: () => ({
-                url: "/dashboard/stats",
+                url: "dashboard/stats",
                 method: "GET",
             }),
             providesTags: ["Order", "Product"],
         }),
         getRestockQueue: builder.query({
             query: () => ({
-                url: "/dashboard/restock-queue",
+                url: "dashboard/restock-queue",
                 method: "GET",
             }),
             providesTags: ["Product"],
         }),
         getActivityLogs: builder.query({
             query: () => ({
-                url: "/activity",
+                url: "activity",
                 method: "GET",
             }),
             providesTags: ["Order", "Product", "Category"],
