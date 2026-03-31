@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ShoppingCart, Plus, Trash2, CheckCircle2, XCircle, Truck, PackageCheck, Search, User, Package, ArrowRight, Loader2, Calendar, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function OrdersPage() {
     const [customerName, setCustomerName] = useState("");
@@ -20,6 +21,10 @@ export default function OrdersPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const limit = 10;
+
+    useEffect(() => {
+        document.title = "Orders | SmartInv";
+    }, []);
 
     const { data: orders, isLoading: ordersLoading, isFetching: ordersFetching } = useGetAllOrdersQuery({ page, limit });
     const { data: products, isLoading: productsLoading } = useGetAllProductsQuery({ limit: 100 }); // Fetch all for dropdown

@@ -7,10 +7,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { History, Loader2, Calendar, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export default function ActivitiesPage() {
     const [page, setPage] = useState(1);
     const limit = 15;
+
+    useEffect(() => {
+        document.title = "Activities | SmartInv";
+    }, []);
 
     const { data: activities, isLoading, isFetching } = useGetActivityLogsQuery({ page, limit });
 
@@ -50,9 +55,7 @@ export default function ActivitiesPage() {
                         <History className="mr-3 h-5 w-5 text-blue-600" />
                         Activity Logs
                     </CardTitle>
-                    <div className="text-xs font-medium text-gray-400">
-                        Total {meta?.total || 0} activities
-                    </div>
+                    <div className="text-xs font-medium text-gray-400">Total {meta?.total || 0} activities</div>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
@@ -102,31 +105,17 @@ export default function ActivitiesPage() {
                     {meta && meta.totalPage > 1 && (
                         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-50">
                             <div className="text-sm text-gray-500">
-                                Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to{" "}
-                                <span className="font-medium">{Math.min(page * limit, meta.total)}</span> of{" "}
-                                <span className="font-medium">{meta.total}</span> activities
+                                Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(page * limit, meta.total)}</span> of <span className="font-medium">{meta.total}</span> activities
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handlePreviousPage}
-                                    disabled={page === 1 || isFetching}
-                                    className="h-9 rounded-lg border-gray-200"
-                                >
+                                <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1 || isFetching} className="h-9 rounded-lg border-gray-200">
                                     <ChevronLeft className="h-4 w-4 mr-1" />
                                     Previous
                                 </Button>
                                 <div className="text-sm font-medium px-4">
                                     Page {page} of {meta.totalPage}
                                 </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleNextPage}
-                                    disabled={page === meta.totalPage || isFetching}
-                                    className="h-9 rounded-lg border-gray-200"
-                                >
+                                <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === meta.totalPage || isFetching} className="h-9 rounded-lg border-gray-200">
                                     Next
                                     <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>

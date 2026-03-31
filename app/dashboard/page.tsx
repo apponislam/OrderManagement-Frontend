@@ -13,8 +13,13 @@ import {
     Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
-export default function DashboardPage() {
+export default function Dashboard() {
+    useEffect(() => {
+        document.title = "Overview | SmartInv";
+    }, []);
+
     const { data: stats, isLoading: statsLoading } = useGetDashboardStatsQuery(undefined);
     const { data: activityLogs, isLoading: logsLoading } = useGetActivityLogsQuery(undefined);
 

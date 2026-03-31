@@ -8,8 +8,13 @@ import { AlertCircle, ArrowUpCircle, RefreshCcw, Loader2, PackageSearch } from "
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function RestockQueuePage() {
+    useEffect(() => {
+        document.title = "Restock Queue | SmartInv";
+    }, []);
+
     const { data: queue, isLoading: queueLoading } = useGetRestockQueueQuery(undefined);
     const [updateProduct, { isLoading: isRestocking }] = useUpdateProductMutation();
 

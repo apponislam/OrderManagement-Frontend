@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Tags, Loader2, Search, Inbox, Edit2, Trash2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function CategoriesPage() {
     const [name, setName] = useState("");
@@ -16,6 +17,10 @@ export default function CategoriesPage() {
     const [editingCategory, setEditingCategory] = useState<any>(null);
     const [page, setPage] = useState(1);
     const limit = 10;
+
+    useEffect(() => {
+        document.title = "Categories | SmartInv";
+    }, []);
 
     const { data: categories, isLoading, isFetching } = useGetAllCategoriesQuery({ page, limit });
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();

@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 export default function ProductsPage() {
     const [name, setName] = useState("");
@@ -22,6 +23,10 @@ export default function ProductsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const limit = 10;
+
+    useEffect(() => {
+        document.title = "Products | SmartInv";
+    }, []);
 
     const { data: products, isLoading: productsLoading, isFetching: productsFetching } = useGetAllProductsQuery({ page, limit });
     const { data: categories, isLoading: categoriesLoading } = useGetAllCategoriesQuery({ limit: 100 }); // Fetch all for dropdown
