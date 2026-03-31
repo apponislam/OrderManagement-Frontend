@@ -98,12 +98,24 @@ export default function OrdersPage() {
     };
 
     const handleCancelOrder = async (id: string) => {
-        if (!confirm("Are you sure you want to cancel this order?")) return;
-        try {
-            await cancelOrder(id).unwrap();
-        } catch (err) {
-            console.error("Failed to cancel order:", err);
-        }
+        toast("Are you sure you want to cancel this order?", {
+            action: {
+                label: "Confirm",
+                onClick: async () => {
+                    try {
+                        await cancelOrder(id).unwrap();
+                        toast.success("Order cancelled successfully");
+                    } catch (err: any) {
+                        console.error("Failed to cancel order:", err);
+                        toast.error(err?.data?.message || "Failed to cancel order.");
+                    }
+                },
+            },
+            cancel: {
+                label: "No",
+                onClick: () => {},
+            },
+        });
     };
 
     const handlePreviousPage = () => {
@@ -306,25 +318,25 @@ export default function OrdersPage() {
                                                 <TableCell className="text-right py-5 font-black text-gray-900">${order.totalPrice.toFixed(2)}</TableCell>
                                                 <TableCell className="text-center py-5">{getStatusBadge(order.status)}</TableCell>
                                                 <TableCell className="text-right px-6 py-5">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        {order.status === "pending" && (
-                                                            <>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg" title="Confirm" onClick={() => handleStatusUpdate(order._id, "confirmed")}>
-                                                                    <CheckCircle2 className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg" title="Cancel" onClick={() => handleCancelOrder(order._id)}>
-                                                                    <XCircle className="h-4 w-4" />
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        {order.status === "confirmed" && (
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg" title="Ship" onClick={() => handleStatusUpdate(order._id, "shipped")}>
-                                                                <Truck className="h-4 w-4" />
-                                                            </Button>
-                                                        )}
-                                                        {order.status === "shipped" && (
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg" title="Deliver" onClick={() => handleStatusUpdate(order._id, "delivered")}>
-                                                                <PackageCheck className="h-4 w-4" />
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <select
+                                                            className={cn("h-9 w-32 rounded-lg border px-2 py-1 text-[10px] font-bold uppercase tracking-wider focus:outline-none transition-all cursor-pointer", order.status === "cancelled" ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed" : "bg-white border-gray-200 text-gray-700 hover:border-blue-400 focus:border-blue-500")}
+                                                            value={order.status}
+                                                            onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                                                            disabled={order.status === "cancelled" || order.status === "delivered"}
+                                                        >
+                                                            <option value="pending">Pending</option>
+                                                            <option value="confirmed">Confirmed</option>
+                                                            <option value="shipped">Shipped</option>
+                                                            <option value="delivered">Delivered</option>
+                                                            <option value="cancelled" disabled>
+                                                                Cancelled
+                                                            </option>
+                                                        </select>
+
+                                                        {order.status !== "cancelled" && order.status !== "delivered" && (
+                                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg shadow-sm" title="Cancel Order" onClick={() => handleCancelOrder(order._id)}>
+                                                                <Trash2 className="h-4.5 w-4.5" />
                                                             </Button>
                                                         )}
                                                     </div>
