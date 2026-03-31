@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X } from "lucide-react";
+import { Plus, Package, Edit2, AlertCircle, Loader2, Search, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -20,9 +20,11 @@ export default function ProductsPage() {
     const [minStockThreshold, setMinStockThreshold] = useState("");
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 10;
 
-    const { data: products, isLoading: productsLoading } = useGetAllProductsQuery(undefined);
-    const { data: categories, isLoading: categoriesLoading } = useGetAllCategoriesQuery(undefined);
+    const { data: products, isLoading: productsLoading, isFetching: productsFetching } = useGetAllProductsQuery({ page, limit });
+    const { data: categories, isLoading: categoriesLoading } = useGetAllCategoriesQuery({ limit: 100 }); // Fetch all for dropdown
     const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
     const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation();
 
@@ -56,6 +58,16 @@ export default function ProductsPage() {
         setStock("");
         setMinStockThreshold("");
         setEditingProduct(null);
+    };
+
+    const handlePreviousPage = () => {
+        if (page > 1) setPage(page - 1);
+    };
+
+    const handleNextPage = () => {
+        if (products?.meta && page < products.meta.totalPage) {
+            setPage(page + 1);
+        }
     };
 
     const handleEdit = (product: any) => {
@@ -226,6 +238,28 @@ export default function ProductsPage() {
                                 </TableBody>
                             </Table>
                         </div>
+
+                        {/* Pagination */}
+                        {products?.meta && products.meta.totalPage > 1 && (
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-50">
+                                <div className="text-sm text-gray-500">
+                                    Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(page * limit, products.meta.total)}</span> of <span className="font-medium">{products.meta.total}</span> products
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1 || productsFetching} className="h-9 rounded-lg border-gray-200">
+                                        <ChevronLeft className="h-4 w-4 mr-1" />
+                                        Previous
+                                    </Button>
+                                    <div className="text-sm font-medium px-4">
+                                        Page {page} of {products.meta.totalPage}
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === products.meta.totalPage || productsFetching} className="h-9 rounded-lg border-gray-200">
+                                        Next
+                                        <ChevronRight className="h-4 w-4 ml-1" />
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

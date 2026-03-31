@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShoppingCart, Plus, Trash2, CheckCircle2, XCircle, Truck, PackageCheck, Search, User, Package, ArrowRight, Loader2, Calendar, Filter, X } from "lucide-react";
+import { ShoppingCart, Plus, Trash2, CheckCircle2, XCircle, Truck, PackageCheck, Search, User, Package, ArrowRight, Loader2, Calendar, Filter, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -18,9 +18,11 @@ export default function OrdersPage() {
     const [selectedProductId, setSelectedProductId] = useState("");
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 10;
 
-    const { data: orders, isLoading: ordersLoading } = useGetAllOrdersQuery(undefined);
-    const { data: products, isLoading: productsLoading } = useGetAllProductsQuery(undefined);
+    const { data: orders, isLoading: ordersLoading, isFetching: ordersFetching } = useGetAllOrdersQuery({ page, limit });
+    const { data: products, isLoading: productsLoading } = useGetAllProductsQuery({ limit: 100 }); // Fetch all for dropdown
     const [createOrder, { isLoading: isCreating }] = useCreateOrderMutation();
     const [updateOrderStatus] = useUpdateOrderStatusMutation();
     const [cancelOrder] = useCancelOrderMutation();
@@ -104,7 +106,19 @@ export default function OrdersPage() {
         }
     };
 
-    const filteredOrders = orders?.data?.filter((o: any) => o.customerName.toLowerCase().includes(searchTerm.toLowerCase()) || o.status.toLowerCase().includes(searchTerm.toLowerCase()));
+    const handlePreviousPage = () => {
+        if (page > 1) setPage(page - 1);
+    };
+
+    const handleNextPage = () => {
+        if (orders?.meta && page < orders.meta.totalPage) {
+            setPage(page + 1);
+        }
+    };
+
+    const filteredOrders = orders?.data?.filter((order: any) => {
+        return order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) || order._id.includes(searchTerm);
+    });
 
     const getStatusBadge = (status: string) => {
         const styles: Record<string, string> = {
@@ -330,6 +344,28 @@ export default function OrdersPage() {
                                 </TableBody>
                             </Table>
                         </div>
+
+                        {/* Pagination */}
+                        {orders?.meta && orders.meta.totalPage > 1 && (
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-gray-50">
+                                <div className="text-sm text-gray-500">
+                                    Showing <span className="font-medium">{(page - 1) * limit + 1}</span> to <span className="font-medium">{Math.min(page * limit, orders.meta.total)}</span> of <span className="font-medium">{orders.meta.total}</span> orders
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Button variant="outline" size="sm" onClick={handlePreviousPage} disabled={page === 1 || ordersFetching} className="h-9 rounded-lg border-gray-200">
+                                        <ChevronLeft className="h-4 w-4 mr-1" />
+                                        Previous
+                                    </Button>
+                                    <div className="text-sm font-medium px-4">
+                                        Page {page} of {orders.meta.totalPage}
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page === orders.meta.totalPage || ordersFetching} className="h-9 rounded-lg border-gray-200">
+                                        Next
+                                        <ChevronRight className="h-4 w-4 ml-1" />
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

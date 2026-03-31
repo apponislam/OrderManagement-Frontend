@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Package, ShoppingCart, Tags, AlertCircle, LogOut, User } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Tags, AlertCircle, LogOut, User, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logOut, currentUser } from "@/redux/features/auth/authSlice";
@@ -15,6 +15,7 @@ const navigation = [
     { name: "Products", href: "/dashboard/products", icon: Package },
     { name: "Orders", href: "/dashboard/orders", icon: ShoppingCart },
     { name: "Restock Queue", href: "/dashboard/restock-queue", icon: AlertCircle },
+    { name: "Activities", href: "/dashboard/activities", icon: History },
 ];
 
 export function Sidebar() {

@@ -17,9 +17,10 @@ const dashboardApi = baseApi.injectEndpoints({
             providesTags: ["Product"],
         }),
         getActivityLogs: builder.query({
-            query: () => ({
+            query: (params) => ({
                 url: "activity",
                 method: "GET",
+                params,
             }),
             providesTags: ["Order", "Product", "Category"],
         }),
